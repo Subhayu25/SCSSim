@@ -1,0 +1,181 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
+import { ShoppingBag, Target, TrendingUp, Users } from "lucide-react";
+import { getChartData, dashboardData } from "@/data/dashboardData";
+import { Badge } from "@/components/ui/badge";
+
+export function SalesSection() {
+  const serviceData = getChartData('avg_product_service_pct');
+  
+  const skuData = dashboardData.sku_service_r3.map((item) => ({
+    product: item.product.replace('Fressie ', '').replace(' 1 liter', ' 1L'),
+    service_pct: Number(item.service_pct),
+    stock_weeks: Number(item.stock_weeks),
+  }));
+  
+  const insights = [
+    {
+      icon: <Target className="w-5 h-5 text-green-500" />,
+      title: "Food & Grocery Focus",
+      description: "Profitability boosted by concentrating on high-margin F&G segment"
+    },
+    {
+      icon: <Users className="w-5 h-5 text-red-500" />,
+      title: "Land Market Reduction",
+      description: "Service levels strategically reduced for lower-margin Land Market"
+    },
+    {
+      icon: <ShoppingBag className="w-5 h-5 text-orange-500" />,
+      title: "Dominics Adjustment",
+      description: "Service optimization for Dominics channel to improve overall profitability"
+    }
+  ];
+
+  return (
+    <section className="py-12">
+      <div className="container mx-auto px-6">
+        <div className="section-header">
+          <ShoppingBag className="w-8 h-8 text-primary" />
+          <h2 className="section-title">Sales Performance</h2>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Strategy Insights */}
+          <Card className="dashboard-section">
+            <CardHeader>
+              <CardTitle>Sales Strategy</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {insights.map((insight, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-secondary/50">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {insight.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm mb-1">{insight.title}</h4>
+                      <p className="text-xs text-muted-foreground">{insight.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">Impact Summary</h4>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Strategic channel focus improved profitability despite overall service level fluctuations. 
+                  R3 average service: {serviceData[3].value.toFixed(1)}%
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Average Service Level Trend */}
+          <Card className="dashboard-section">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Average Product Service Level
+                <Badge variant="default">
+                  {serviceData[3].value.toFixed(1)}%
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={serviceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis 
+                      dataKey="round" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      domain={[90, 100]}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px"
+                      }}
+                      formatter={(value: number) => [`${value.toFixed(1)}%`, "Service Level"]}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="hsl(var(--chart-3))" 
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--chart-3))", strokeWidth: 2, r: 6 }}
+                      activeDot={{ r: 8, stroke: "hsl(var(--chart-3))", strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* R3 SKU Performance */}
+          <Card className="dashboard-section">
+            <CardHeader>
+              <CardTitle>R3 Service Level by SKU</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart 
+                     data={skuData} 
+                     margin={{ top: 20, right: 30, left: 110, bottom: 10 }}
+                     layout="vertical"
+                   >
+                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                     <XAxis 
+                       type="number"
+                       dataKey="service_pct"
+                       domain={[75, 100]}
+                       stroke="hsl(var(--muted-foreground))"
+                       fontSize={11}
+                       tickFormatter={(value) => `${value}%`}
+                     />
+                     <YAxis 
+                       type="category"
+                       dataKey="product" 
+                       stroke="hsl(var(--muted-foreground))"
+                       fontSize={11}
+                       width={120}
+                       tick={{ textAnchor: 'end' }}
+                     />
+                     <Tooltip 
+                       contentStyle={{ 
+                         backgroundColor: "hsl(var(--card))",
+                         border: "1px solid hsl(var(--border))",
+                         borderRadius: "8px"
+                       }}
+                       formatter={(value: number) => [`${value.toFixed(1)}%`, "Service Level"]}
+                     />
+                     <Bar 
+                       dataKey="service_pct" 
+                       radius={[0, 6, 6, 0]}
+                       maxBarSize={20}
+                       isAnimationActive={false}
+                     >
+                       {skuData.map((d, i) => (
+                         <Cell key={i} fill={d.product.includes("C-power") ? "hsl(var(--chart-4))" : "hsl(var(--chart-3))"} />
+                       ))}
+                       <LabelList dataKey="service_pct" position="right" formatter={(v: number) => `${v.toFixed(1)}%`} fill="hsl(var(--muted-foreground))" />
+                     </Bar>
+                   </BarChart>
+                 </ResponsiveContainer>
+              </div>
+              
+              <div className="mt-4 text-center">
+                <Badge variant="outline" className="text-xs">
+                  C-power products showing targeted service reduction
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
