@@ -2,6 +2,18 @@
 # TropiC+ — The Fresh Connection (Rounds 0–6) Dashboard
 # Streamlit app with functional→financial KPI mapping and professional UI.
 
+import streamlit as st
+
+try:
+    import plotly.graph_objects as go
+    import plotly.express as px
+except ModuleNotFoundError:
+    st.error(
+        "Plotly is not installed. Add `plotly>=5.18,<6` to `requirements.txt`, "
+        "commit to GitHub, and redeploy."
+    )
+    st.stop()
+
 import io
 import json
 import numpy as np
